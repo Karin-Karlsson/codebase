@@ -6,12 +6,34 @@ import java.util.List;
 
 public class Board {
 
+	private final int selectedNo;
+	private final int initPosOfSelectedNo;
+	private final Numbers numbers = new Numbers();
+	private final List<Integer> goal;
+	private final List<Integer> neighbours;
+	
 	private int col = 1;
 	private int row = 1;
 
 	private int pos = 0;
-	
+
 	public Board() {
+		numbers.scramble();
+		goal = Collections.unmodifiableList(numbers.cloneNumbersList());
+		selectedNo = numbers.getRandomNumber();
+		initPosOfSelectedNo = numbers.findIndex(selectedNo);
+		neighbours =  Collections.unmodifiableList(getNeighbours(initPosOfSelectedNo));
+		initPosColAndRow(initPosOfSelectedNo);
+		numbers.scramble();
+	}
+	
+	private void initPosColAndRow(int excludePos) {
+		pos = excludePos;
+		while (pos == excludePos) {
+			pos = numbers.getRandomNumber();
+		}
+		col = getColForIndex(pos + 1);
+		row = getRowForIndex(pos + 1);
 	}
 	
 	public int getCurrentPos()
@@ -25,6 +47,7 @@ public class Board {
 			return false;
 		}
 		row--;
+		setPos(row,col);
 		return true;
 	}
 	
@@ -34,6 +57,7 @@ public class Board {
 			return false;
 		}
 		row++;
+		setPos(row,col);
 		return true;
 	}
 	
@@ -44,6 +68,7 @@ public class Board {
 			return false;
 		}
 		col--;
+		setPos(row,col);
 		return true;
 	}
 	
@@ -54,7 +79,87 @@ public class Board {
 			return false;
 		}
 		col++;
+		setPos(row,col);
 		return true;
+	}
+	
+	private void setPos(int row, int col) {
+		switch (row) {
+		case 1:
+			pos = col - 1;
+			break;
+		case 2:
+			pos =  4 + col - 1;
+			break;
+		case 3:
+			pos =  8 + col - 1;
+			break;
+		case 4:
+			pos =  12 + col - 1;
+			break;
+		default:
+			throw new IllegalStateException("Illegal switch!");
+		}
+	}
+	
+	private int getRowForIndex(int index) {
+		if (index < 4) {
+			return 1;
+		} else if (index > 3 && index < 8) {
+			return 2;
+		} else if (index > 7 && index < 12) {
+			return 3;
+		} else if (index >= 12) {
+			return 4;
+		}
+		throw new IllegalStateException("Index out of range!");
+	}
+	
+	private int getColForIndex(int index) {
+		if (index == 0 || index == 4 || index == 8 || index == 12) {
+			return 1;
+		} else if (index == 1 || index == 5 || index == 9 || index == 13) {
+			return 2;
+		} else if (index == 2 || index == 6 || index == 10 || index == 14) {
+			return 3;
+		} else if (index == 3 || index == 7 || index == 11 || index == 15) {
+			return 4;
+		}
+		throw new IllegalStateException("Index out of range!");
+	}
+	
+	private List<Integer> getNeighbours(int index) {
+
+		List<Integer> list = new ArrayList<Integer>();
+		int row = getRowForIndex(index);
+		int col = getColForIndex(index);
+		
+		int curIndex;
+		
+		int left = col - 1;
+		int right = col + 1;
+		int up = row - 1;
+		int down = row + 1;
+		
+		if (left > 0) {
+			curIndex = numbers.getIndex(row, left);
+			list.add(numbers.getNumber(curIndex));
+		}
+		if (right < 5) {
+			curIndex = numbers.getIndex(row, right);
+			list.add(numbers.getNumber(curIndex));
+		}
+		if (up > 0) {
+			curIndex = numbers.getIndex(up, col);
+			list.add(numbers.getNumber(curIndex));
+		}
+		if (down < 5) {
+			curIndex = numbers.getIndex(down, col);
+			list.add(numbers.getNumber(curIndex));
+		}
+		
+		
+		return list;
 	}
 	
 	class Numbers {
@@ -80,6 +185,10 @@ public class Board {
 			current.set(index2, val1);
 		}
 		
+		int getNumber(int index) {
+			return current.get(index);
+		}
+		
 		int getRandomNumber() {
 			return (int )(Math.random() * 16 + 1);
 		}
@@ -100,7 +209,7 @@ public class Board {
 			return current.get(10);
 		}
 		
-		int get(int row, int col) {
+		int getIndex(int row, int col) {
 			switch (row) {
 			case 1:
 				return col - 1;
@@ -112,9 +221,17 @@ public class Board {
 				return 12 + col - 1;
 			default:
 				throw new IllegalStateException("Illegal switch!");
-			}
+			}	
 			
-			
+		}
+		
+		int findIndex(int no) {
+			return Collections.binarySearch(current, no);
+		}
+		
+		@SuppressWarnings("unchecked")
+		List<Integer> cloneNumbersList() {
+			return (List<Integer>) ((ArrayList<Integer>)current).clone();
 		}
 		
 	}
