@@ -14,9 +14,12 @@ public class World {
 	private int selectedNo = 0;
 	private int startPosOfSelectedNo = 0;
 	
-	public World() {
-		
+	private final Form form;
+	
+	public World(Form form) {
+		this.form = form;
 	}
+	
 	
 	private void setUp() {
 		numbers.scramble();
