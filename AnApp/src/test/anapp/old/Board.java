@@ -1,10 +1,10 @@
-package test.anapp.core;
+package test.anapp.old;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Board {
+public final class Board {
 
 	private final int selectedNo;
 	private final int initPosOfSelectedNo;
@@ -39,6 +39,18 @@ public class Board {
 	public int getCurrentPos()
 	{
 		return pos;
+	}
+	
+	public List<Integer> getCurrent() {
+		return Collections.unmodifiableList(numbers.current);
+	}
+	
+	public List<Integer> getGoal() {
+		return goal;
+	}
+	
+	public List<Integer> getNeighbours() {
+		return neighbours;
 	}
 	
 	public boolean moveUp() {
